@@ -1,21 +1,10 @@
-export const propsToStyles = ({
-    $decoration,
-    $color,
-    $weight,
-    $family,
-    $size,
-    $cursor,
-    $transition,
-    $hover,
-  } = {}) => {
-    return `
-      ${$decoration ? `text-decoration: ${$decoration};` : ""}
-      ${$color ? `color: ${$color};` : ""}
-      ${$weight ? `font-weight: ${$weight};` : ""}
-      ${$family ? `font-family: ${$family};` : ""}
-      ${$size ? `font-size: ${$size}rem;` : ""}
-      ${$cursor ? `cursor: ${$cursor};` : ""}
-      ${$transition ? `transition: ${$transition.property ?? "all"} ${$transition.duration ?? 0.3}s ${$transition.timingFunction ?? "ease"} ${$transition.delay ?? 0}s;` : ""}
-      ${$hover ? `&:hover { ${propsToStyles($hover)} }` : ""}
-    `;
-  };
+export const formatCLP = (amount) => {
+  if (amount == null || isNaN(amount)) return "--";
+  const nf = new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+  return nf.format(Math.round(amount));
+}

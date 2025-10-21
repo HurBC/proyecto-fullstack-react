@@ -1,102 +1,103 @@
 import styled from "styled-components";
 import Card from "../../../shared/components/Card";
-
-const Wrapper = styled.article`
-  padding: 1.5rem;
-  max-width: 320px;
-  width: 100%;
-  display: flex;
-  row-gap: 1.5rem;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--color-surface);
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  text-align: center;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-  }
-`;
-
-const ImageWrapper = styled.h3`
-  height: 200px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--color-background);
-  border-radius: 4px;
-  overflow: hidden;
-`;
+import { Button } from "../../../shared/components/Button";
+import { Text } from "../../../shared/ui/Text";
+import { Padding } from "../../../shared/ui/Padding";
+import { Column } from "../../../shared/ui/layout/Column";
+import { Row } from "../../../shared/ui/layout/Row";
+import { useNavigate } from "react-router-dom";
+import { formatCLP } from "../../../shared/_utils";
 
 const Image = styled.img`
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  display: block;
-`;
-
-const Details = styled.div`
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-grow: 1;
+  max-width: 260px; /* Mantener este tamaño para la cuadrícula */
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Sombra ligeramente más pronunciada */
+  background: var(
+    --color-bg-alt
+  ); /* Fondo si la imagen no carga o es transparente */
+  margin-bottom: 0.5rem;
 `;
 
-const Title = styled.h3`
-  color: var(--color-text-main);
-  font-size: 1.6rem;
-  margin: 0;
-  text-align: center;
-`;
+const Product = ({ product }) => {
+  if (!product) return <></>;
 
-const Description = styled.p`
-  font-family: "Orbitron", sans-serif;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.4;
-  flex-grow: 1;
-`;
+  const { name, description, price, stock, image } = product;
 
-const Meta = styled.p`
-  font-family: "Orbitron", sans-serif;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.4;
-  flex-grow: 1;
-`;
+  const navigate = useNavigate();
 
-const Price = styled.span`
-  font-family: var(--font-heading);
-  color: var(--color-accent-green);
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-shadow: 0 0 3px rgba(57, 255, 20, 0.3);
-`;
-
-const Stock = styled.span`
-  font-family: "Orbitron", sans-serif;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-`;
-
-const Product = ({
-  product: {
-    name,
-    description,
-    // price,
-    // stock
-  },
-}) => {
   return (
-    <Card primary title={<Title>{name}</Title>}>
-      <p>{description}</p>
+    <Card
+      title={
+        <Text
+          as="h3"
+          $color="var(--color-text-main)"
+          $size={1.4}
+          $weight="bold"
+          $aling="center"
+        >
+          {name}
+        </Text>
+      }
+      $height="auto"
+      $css={`
+        display:flex; 
+        flex-direction:column; 
+        justify-content:space-between;
+        gap: calc(var(--space-unit) * 0.5); /* Espacio entre el título y la padding */
+      `}
+      $width="100%"
+      $background="var(--gradient-surface)"
+      $hover="transform: translateY(-8px) scale(1.02); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22); border-color: var(--color-accent-blue);" /* Cambio de color de borde en hover */
+      $radius="12px"
+      style={{ border: "1px solid var(--color-border)" }}
+    >
+      <Padding $x={1.5} $y={1.5}>
+        <Column $gapY={1} $alignItems="center" $justify="between">
+          <Image src={image} alt={name} />
+          <Text
+            $color="var(--color-text-secondary)"
+            $size={0.9}
+            $aling="center"
+            $weight="500"
+            style={{
+              marginBottom: "0.5rem",
+              height: "3.6em",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              "-webkit-line-clamp": "3",
+              "-webkit-box-orient": "vertical",
+            }}
+          >
+            {description}
+          </Text>
+          <Row
+            $alignItems="center"
+            $justify="between"
+            $gap={1.5}
+            style={{ width: "100%", marginTop: "auto" }}
+          >
+            <Column $alignItems="start" $justify="center" $gapY={0.5}>
+              <Text
+                $color="var(--color-accent-green)"
+                $size={1.4}
+                $weight="bold"
+              >
+                {formatCLP(price)}
+              </Text>
+              <Text $color="var(--color-text-muted)" $size={0.8}>
+                Stock: {stock}
+              </Text>
+            </Column>
+            <Button onClick={() => navigate(`/products/${product.code}`)}>
+              Ver más
+            </Button>
+          </Row>
+        </Column>
+      </Padding>
     </Card>
   );
 };

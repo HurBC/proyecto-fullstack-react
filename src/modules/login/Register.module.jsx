@@ -1,14 +1,14 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { useAuth } from "../../shared/providers/AuthProvider";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Padding } from "../../shared/ui/Padding";
 import { Text } from "../../shared/ui/Text";
 import { Row } from "../../shared/ui/layout/Row";
 import Wrapper from "../../shared/ui/layout/Wrapper";
 
-const StyledLoginContainer = styled(Wrapper)`
+const StyledRegisterContainer = styled(Wrapper)`
   max-width: 520px;
   margin: 2rem auto;
   /* Usamos var(--gradient-surface) para un aspecto de tarjeta premium */
@@ -87,42 +87,29 @@ const StyledButton = styled.button`
   }
 `;
 
-const StyledLink = styled(Link)`
-  display: flex; /* Para centrar el texto verticalmente si hay padding */
-  align-items: center;
-  padding: calc(var(--space-unit) * 0.75) calc(var(--space-unit) * 1.5); /* Mismo padding que el botón para alineación */
-  border-radius: 6px;
-  color: var(--color-accent-blue-light); /* Color de acento para el link */
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1rem;
-  transition: color 0.2s ease, transform 0.2s ease;
-
-  &:hover {
-    color: var(--color-accent-blue); /* Color de acento más oscuro en hover */
-    text-decoration: underline; /* Subrayado en hover */
-    transform: translateY(-1px);
-  }
-`;
-
-const LoginModule = () => {
-  const { login } = useAuth();
+const RegisterModule = () => {
+  const { register } = useAuth();
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
     setError(null);
-    const res = await login({ email, password });
-    if (!res.ok) setError(res.message || "Error al iniciar sesión");
+
+    const res = await register({ name, email, password });
+
+    if (!res.ok) setError(res.message || "Error al registrar");
     else navigate("/home", { replace: true });
   };
 
   return (
-    <StyledLoginContainer>
+    <StyledRegisterContainer>
       <Padding $x={2} $y={2.5}>
+        {" "}
         <Text
           as="h2"
           $size={1.8}
@@ -131,9 +118,18 @@ const LoginModule = () => {
           $aling="center"
           style={{ marginBottom: "calc(var(--space-unit) * 1.5)" }}
         >
-          Iniciar sesión
+          Crear cuenta
         </Text>
         <form onSubmit={onSubmit}>
+          <Field>
+            <StyledLabel htmlFor="name">Nombre</StyledLabel>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Tu nombre completo"
+            />
+          </Field>
           <Field>
             <StyledLabel htmlFor="email">Email</StyledLabel>
             <Input
@@ -167,17 +163,16 @@ const LoginModule = () => {
             </Text>
           )}
           <Row
-            $gap={1}
             $justify="end"
             style={{ marginTop: "calc(var(--space-unit) * 1.5)" }}
           >
-            <StyledLink to="/register">Crear cuenta</StyledLink>
-            <StyledButton type="submit">Ingresar</StyledButton>
+            {" "}
+            <StyledButton type="submit">Crear cuenta</StyledButton>
           </Row>
         </form>
       </Padding>
-    </StyledLoginContainer>
+    </StyledRegisterContainer>
   );
 };
 
-export default LoginModule;
+export default RegisterModule;
