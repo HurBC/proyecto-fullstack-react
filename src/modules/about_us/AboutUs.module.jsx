@@ -63,7 +63,7 @@ const AboutUsModule = () => {
           $size={2.8}
           $weight="bold"
           $color="var(--color-text-main)"
-          $aling="center"
+          $align="center"
           style={{ marginBottom: "calc(var(--space-unit) * 2.5)" }}
         >
           Sobre{" "}

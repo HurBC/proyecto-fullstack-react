@@ -115,7 +115,7 @@ const RegisterModule = () => {
           $size={1.8}
           $weight="bold"
           $color="var(--color-text-main)"
-          $aling="center"
+          $align="center"
           style={{ marginBottom: "calc(var(--space-unit) * 1.5)" }}
         >
           Crear cuenta

@@ -144,7 +144,7 @@ const ContactModule = () => {
           $size={2.8}
           $weight="bold"
           $color="var(--color-text-main)"
-          $aling="center"
+          $align="center"
           style={{ marginBottom: "calc(var(--space-unit) * 1.5)" }}
         >
           Contacto{" "}
@@ -156,7 +156,7 @@ const ContactModule = () => {
           as="p"
           $size={1.1}
           $color="var(--color-text-secondary)"
-          $aling="center"
+          $align="center"
           style={{
             marginBottom: "calc(var(--space-unit) * 2.5)",
             maxWidth: "600px",
@@ -253,7 +253,7 @@ const ContactModule = () => {
             <Text
               $color="var(--color-success)"
               $size={1}
-              $aling="center"
+              $align="center"
               style={{
                 marginTop: "calc(var(--space-unit) * 1.5)",
                 marginBottom: "calc(var(--space-unit) * 1)",
@@ -266,7 +266,7 @@ const ContactModule = () => {
             <Text
               $color="var(--color-danger)"
               $size={1}
-              $aling="center"
+              $align="center"
               style={{
                 marginTop: "calc(var(--space-unit) * 1.5)",
                 marginBottom: "calc(var(--space-unit) * 1)",

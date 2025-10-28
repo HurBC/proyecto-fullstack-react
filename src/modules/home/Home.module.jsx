@@ -151,9 +151,9 @@ const HomeModule = () => {
                 $weight="bold"
                 $color="var(--color-text-main)"
               >
-                Tienda Gamer{" "}
+                Level{" "}
                 <Text as="span" $color="var(--color-accent-blue)">
-                  Épica
+                  Up
                 </Text>
               </Text>
               <Text

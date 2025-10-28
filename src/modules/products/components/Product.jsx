@@ -36,7 +36,7 @@ const Product = ({ product }) => {
           $color="var(--color-text-main)"
           $size={1.4}
           $weight="bold"
-          $aling="center"
+          $align="center"
         >
           {name}
         </Text>
@@ -60,7 +60,7 @@ const Product = ({ product }) => {
           <Text
             $color="var(--color-text-secondary)"
             $size={0.9}
-            $aling="center"
+            $align="center"
             $weight="500"
             style={{
               marginBottom: "0.5rem",
