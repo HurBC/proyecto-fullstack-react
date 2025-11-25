@@ -85,17 +85,17 @@ const Cart = () => {
   const navigate = useNavigate();
 
   const onRemove = useCallback(
-    (code) => {
-      removeItem(code);
+    (id) => {
+      removeItem(id);
     },
     [removeItem]
   );
 
   const onQuantityChange = useCallback(
-    (code, e) => {
+    (id, e) => {
       const v = parseInt(e.target.value, 10);
       if (!isNaN(v) && v >= 0) {
-        updateItemQuantity(code, v);
+        updateItemQuantity(id, v);
       }
     },
     [updateItemQuantity]
@@ -119,7 +119,7 @@ const Cart = () => {
   const cartItemsJSX = useMemo(
     () =>
       items.map((it) => (
-        <StyledCartItemRow key={`cart_${it.code}`} $wrap={true}>
+        <StyledCartItemRow key={`cart_${it.id}`} $wrap={true}>
           <StyledThumb src={it.image} alt={it.name} />
           <Column style={{ flex: 1, minWidth: "150px" }} $gapY={0.3}>
             <Text
@@ -146,10 +146,10 @@ const Cart = () => {
               type="number"
               min={0}
               value={it.quantity}
-              onChange={(e) => onQuantityChange(it.code, e)}
+              onChange={(e) => onQuantityChange(it.id, e)}
             />
             <Button
-              onClick={() => onRemove(it.code)}
+              onClick={() => onRemove(it.id)}
               $background="var(--color-danger)"
               $hover={{ background: "var(--color-danger-darker, #d60000)" }}
               style={{

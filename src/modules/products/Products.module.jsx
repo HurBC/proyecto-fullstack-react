@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import Product from "./components/Product";
@@ -92,30 +92,39 @@ const StyledCategoryFilterButton = styled(Wrapper)`
 `;
 
 const ProductsModule = () => {
-  const allProducts = ProductsRepo.getAllProducts();
-  const [selectedCategory, setSelectedCategory] = useState("Todas");
+  const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("Todas");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const uniqueCategories = ProductsRepo.getAllCategories();
-
-    setCategories(["Todas", ...uniqueCategories]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [productsData, categoriesData] = await Promise.all([
+          ProductsRepo.getAllProducts(),
+          ProductsRepo.getAllCategories(),
+        ]);
+        setProducts(productsData);
+        setCategories(["Todas", ...categoriesData.map((c) => c.name)]);
+      } catch (err) {
+        setError("Error fetching data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  const filteredProducts = useMemo(() => {
-    if (selectedCategory === "Todas") {
-      return allProducts;
-    }
-    return ProductsRepo.getProductsByCategory(selectedCategory);
-  }, [allProducts, selectedCategory]);
-
-  const renderedProducts = useMemo(
-    () =>
-      filteredProducts.map((product) => (
-        <Product key={product.code} product={product} />
-      )),
-    [filteredProducts]
-  );
+  const filteredProducts =
+    selectedCategory === "Todas"
+      ? products
+      : products.filter(
+          (p) =>
+            p.categories &&
+            p.categories.some((c) => c.name === selectedCategory)
+        );
 
   return (
     <Padding $y={3}>
@@ -176,7 +185,11 @@ const ProductsModule = () => {
                 ))}
               </Row>
             </Wrapper>
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <Text>Loading...</Text>
+            ) : error ? (
+              <Text>{error}</Text>
+            ) : filteredProducts.length === 0 ? (
               <Wrapper
                 $textAlign="center"
                 style={{ padding: "calc(var(--space-unit) * 3) 0" }}
@@ -209,7 +222,9 @@ const ProductsModule = () => {
                 $justify="center"
                 $templateColumns="repeat(auto-fill, minmax(280px, 1fr))"
               >
-                {renderedProducts}
+                {filteredProducts.map((product) => (
+                  <Product key={product.id} product={product} />
+                ))}
               </Grid>
             )}
           </Column>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -115,26 +115,42 @@ const hexToRgb = (hex) => {
 const HomeModule = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const firstFeaturedProduct = useMemo(
-    () => (featuredProducts ? featuredProducts[0] : null),
-    [featuredProducts]
-  );
-
   useEffect(() => {
-    const currentProducts = ProductsRepo.getFeaturedProducts();
-
-    setFeaturedProducts(currentProducts);
-
-    const allCategories = ProductsRepo.getAllCategories();
-
-    setCategories(allCategories);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [productsData, categoriesData] = await Promise.all([
+          ProductsRepo.getFeaturedProducts(),
+          ProductsRepo.getAllCategories(),
+        ]);
+        setFeaturedProducts(productsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        setError("Error fetching data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
+  const firstFeaturedProduct = featuredProducts.length > 0 ? featuredProducts[0] : null;
+
   const handleCategoryClick = (category) => {
-    navigate(`/products/categories/${encodeURIComponent(category)}`);
+    navigate(`/products/categories/${encodeURIComponent(category.name)}`);
   };
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>{error}</Text>;
+  }
 
   return (
     <Column $gapY={5}>
@@ -202,7 +218,7 @@ const HomeModule = () => {
                   <Row $justify="center" $gapX={2.5} $wrap={true}>
                     <HeroImage
                       src={firstFeaturedProduct.image}
-                      alt={`${firstFeaturedProduct.code}_image`}
+                      alt={`${firstFeaturedProduct.id}_image`}
                     />
                     <Column
                       $gapY={1}
@@ -238,7 +254,7 @@ const HomeModule = () => {
                         </Text>
                         <Button
                           onClick={() => {
-                            navigate(`/products/${firstFeaturedProduct.code}`);
+                            navigate(`/products/${firstFeaturedProduct.id}`);
                           }}
                         >
                           Ver detalles
@@ -270,13 +286,14 @@ const HomeModule = () => {
           <Row $gap={1} $wrap={true} $justify="center">
             {categories.map((category) => (
               <StyledCategoryItem
-                key={category}
+                key={category.id}
                 $color={
-                  categoryColors[category] || "var(--color-text-secondary)"
+                  categoryColors[category.name] ||
+                  "var(--color-text-secondary)"
                 }
                 onClick={() => handleCategoryClick(category)}
               >
-                {category}
+                {category.name}
               </StyledCategoryItem>
             ))}
           </Row>
@@ -315,7 +332,7 @@ const HomeModule = () => {
               featuredProducts
                 .slice(1)
                 .map((product) => (
-                  <Product key={`product_${product.code}`} product={product} />
+                  <Product key={`product_${product.id}`} product={product} />
                 ))
             )}
           </Grid>

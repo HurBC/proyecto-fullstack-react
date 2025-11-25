@@ -111,13 +111,16 @@ const LoginModule = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
     const res = await login({ email, password });
+    setLoading(false);
     if (!res.ok) setError(res.message || "Error al iniciar sesión");
-    else navigate("/home", { replace: true });
+    else navigate("/", { replace: true });
   };
 
   return (
@@ -142,6 +145,7 @@ const LoginModule = () => {
               onChange={(e) => setEmail(e.target.value)}
               type="email"
               placeholder="tu@email.com"
+              disabled={loading}
             />
           </Field>
           <Field>
@@ -152,6 +156,7 @@ const LoginModule = () => {
               onChange={(e) => setPassword(e.target.value)}
               type="password"
               placeholder="••••••••"
+              disabled={loading}
             />
           </Field>
           {error && (
@@ -172,7 +177,9 @@ const LoginModule = () => {
             style={{ marginTop: "calc(var(--space-unit) * 1.5)" }}
           >
             <StyledLink to="/register">Crear cuenta</StyledLink>
-            <StyledButton type="submit">Ingresar</StyledButton>
+            <StyledButton type="submit" disabled={loading}>
+              {loading ? "Ingresando..." : "Ingresar"}
+            </StyledButton>
           </Row>
         </form>
       </Padding>

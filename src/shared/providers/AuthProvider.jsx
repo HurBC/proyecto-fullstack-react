@@ -1,110 +1,93 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import authService from "../services/auth";
 
-const STORAGE_ACCOUNTS_KEY = "accounts";
-const STORAGE_SESSION_KEY = "session";
+const STORAGE_TOKEN_KEY = "token";
 
 const AuthContext = createContext(null);
 
-const loadAccounts = () => {
+const saveToken = (token) => {
   try {
-    const raw = localStorage.getItem(STORAGE_ACCOUNTS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (token) {
+      localStorage.setItem(STORAGE_TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(STORAGE_TOKEN_KEY);
+    }
   } catch (e) {
-    console.error("Failed to load accounts from localStorage", e);
-    return [];
+    console.error("Failed to save token to localStorage", e);
   }
 };
 
-const saveAccounts = (accounts) => {
+const loadToken = () => {
   try {
-    localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(accounts));
+    return localStorage.getItem(STORAGE_TOKEN_KEY);
   } catch (e) {
-    console.error("Failed to save accounts to localStorage", e);
+    console.error("Failed to load token from localStorage", e);
+    return null;
   }
 };
 
-const saveSession = (user) => {
+const parseJwt = (token) => {
   try {
-    if (user) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(user));
-    else localStorage.removeItem(STORAGE_SESSION_KEY);
+    return JSON.parse(atob(token.split(".")[1]));
   } catch (e) {
-    console.error("Failed to save session to localStorage", e);
-  }
-};
-
-const loadSession = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.error("Failed to load session from localStorage", e);
     return null;
   }
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => loadSession());
-  const [accounts, setAccounts] = useState(() => loadAccounts());
+  const [token, setToken] = useState(() => loadToken());
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    saveAccounts(accounts);
-  }, [accounts]);
-
-  useEffect(() => {
-    saveSession(user);
-  }, [user]);
-
-  const register = ({ name, email, password }) => {
-    if (!email || !password) {
-      return { ok: false, message: "Email and password are required" };
+    if (token) {
+      const decoded = parseJwt(token);
+      setUser(decoded);
+      saveToken(token);
+    } else {
+      setUser(null);
+      saveToken(null);
     }
+  }, [token]);
 
-    const exists = accounts.find((a) => a.email === email.toLowerCase());
-
-    if (exists) {
-      return { ok: false, message: "Ya existe una cuenta con ese email" };
+  const register = async ({ name, email, password }) => {
+    try {
+      await authService.signup(name, email, password);
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        message: error.response?.data?.message || "Registration failed",
+      };
     }
-
-    const newAccount = {
-      name: name || "",
-      email: email.toLowerCase(),
-      password,
-    };
-    const updated = [...accounts, newAccount];
-
-    setAccounts(updated);
-    setUser({ email: newAccount.email, name: newAccount.name });
-
-    return { ok: true };
   };
 
-  const login = ({ email, password }) => {
-    if (!email || !password) {
-      return { ok: false, message: "Email and password are required" };
+  const login = async ({ email, password }) => {
+    try {
+      const response = await authService.signin(email, password);
+      if (response.data.token) {
+        setToken(response.data.token);
+        return { ok: true };
+      }
+      return { ok: false, message: "Login failed" };
+    } catch (error) {
+      return {
+        ok: false,
+        message: error.response?.data?.message || "Invalid credentials",
+      };
     }
-
-    const ac = accounts.find(
-      (a) => a.email === email.toLowerCase() && a.password === password
-    );
-
-    if (!ac) return { ok: false, message: "Credenciales inválidas" };
-
-    setUser({ email: ac.email, name: ac.name });
-
-    return { ok: true };
   };
 
   const logout = () => {
-    setUser(null);
+    setToken(null);
   };
 
   const value = {
     user,
-    accounts,
+    token,
     register,
     login,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated: !!token,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

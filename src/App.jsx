@@ -60,10 +60,10 @@ const App = () => {
   const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
+    const publicPaths = ["/login", "/register", "/products"];
     if (
       !isAuthenticated &&
-      location.pathname !== "/login" &&
-      location.pathname !== "/register"
+      !publicPaths.some((p) => location.pathname.startsWith(p))
     ) {
       navigate("/login");
     }
@@ -117,7 +117,7 @@ const App = () => {
                       : ""
                   }
                   onClick={() => {
-                    if (isAuthenticated) navigate(link.path);
+                    navigate(link.path);
                   }}
                 >
                   {link.name}

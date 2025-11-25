@@ -94,16 +94,16 @@ const RegisterModule = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
     setError(null);
-
+    setLoading(true);
     const res = await register({ name, email, password });
-
+    setLoading(false);
     if (!res.ok) setError(res.message || "Error al registrar");
-    else navigate("/home", { replace: true });
+    else navigate("/login", { replace: true });
   };
 
   return (
@@ -128,6 +128,7 @@ const RegisterModule = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Tu nombre completo"
+              disabled={loading}
             />
           </Field>
           <Field>
@@ -138,6 +139,7 @@ const RegisterModule = () => {
               onChange={(e) => setEmail(e.target.value)}
               type="email"
               placeholder="tu@email.com"
+              disabled={loading}
             />
           </Field>
           <Field>
@@ -148,6 +150,7 @@ const RegisterModule = () => {
               onChange={(e) => setPassword(e.target.value)}
               type="password"
               placeholder="••••••••"
+              disabled={loading}
             />
           </Field>
           {error && (
@@ -167,7 +170,9 @@ const RegisterModule = () => {
             style={{ marginTop: "calc(var(--space-unit) * 1.5)" }}
           >
             {" "}
-            <StyledButton type="submit">Crear cuenta</StyledButton>
+            <StyledButton type="submit" disabled={loading}>
+              {loading ? "Creando..." : "Crear cuenta"}
+            </StyledButton>
           </Row>
         </form>
       </Padding>
