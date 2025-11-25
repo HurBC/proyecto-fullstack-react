@@ -92,7 +92,7 @@ const Product = ({ product }) => {
                 Stock: {stock}
               </Text>
             </Column>
-            <Button onClick={() => navigate(`/products/${product.code}`)}>
+            <Button onClick={() => navigate(`/products/${product.id}`)}>
               Ver más
             </Button>
           </Row>

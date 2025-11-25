@@ -5,6 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import ProductsRepo from "../repositories/products";
 
 const CartContext = createContext(null);
 
@@ -19,41 +20,60 @@ export const CartProvider = ({ children }) => {
     }
   });
 
-  const updateItemQuantity = useCallback((code, quantity) => {
-    if (!code) return;
+  const [hydratedCartItems, setHydratedCartItems] = useState([]);
+
+  useEffect(() => {
+    const hydrateCart = async () => {
+      const detailedItems = await Promise.all(
+        cartItems.map(async (item) => {
+          const product = await ProductsRepo.getProductById(item.id);
+          return { ...product, quantity: item.quantity };
+        })
+      );
+      setHydratedCartItems(detailedItems);
+    };
+
+    hydrateCart();
+  }, [cartItems]);
+
+  const updateItemQuantity = useCallback((id, quantity) => {
+    if (!id) return;
 
     setCartItems((prev) => {
       const currentItems = [...prev];
-
-      const item = currentItems.find((p) => p.code === code);
+      const item = currentItems.find((p) => p.id === id);
 
       if (item) {
-        item.quantity = quantity;
-      } else {
-        currentItems.push({ ...product, quantity });
+        if (quantity > 0) {
+          item.quantity = quantity;
+        } else {
+          return currentItems.filter((p) => p.id !== id);
+        }
       }
-
       return currentItems;
     });
   }, []);
 
   const addItem = useCallback((product, quantity = 1) => {
-    if (!product || !product.code) return;
+    if (!product || !product.id) return;
+
     setCartItems((prev) => {
       const currentItems = [...prev];
-      const item = currentItems.find((p) => p.code === product.code);
+      const item = currentItems.find((p) => p.id === product.id);
+
       if (item) {
         item.quantity = (item.quantity || 0) + quantity;
       } else {
-        currentItems.push({ ...product, quantity });
+        currentItems.push({ id: product.id, quantity });
       }
+
       return currentItems;
     });
   }, []);
 
-  const removeItem = useCallback((productCode) => {
-    if (!productCode) return;
-    setCartItems((prev) => prev.filter((p) => p.code !== productCode));
+  const removeItem = useCallback((productId) => {
+    if (!productId) return;
+    setCartItems((prev) => prev.filter((p) => p.id !== productId));
   }, []);
 
   const clearCart = useCallback(() => {
@@ -69,8 +89,8 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const cartValue = {
-    items: cartItems,
-    totalPrice: cartItems.reduce(
+    items: hydratedCartItems,
+    totalPrice: hydratedCartItems.reduce(
       (total, item) => total + item.price * item.quantity,
       0
     ),
