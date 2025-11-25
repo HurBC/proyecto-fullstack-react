@@ -1,13 +1,11 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8080/api/v1/categories";
+import api from "./api";
 
 const getAllCategories = () => {
-  return axios.get(API_URL);
+  return api.get("/categories");
 };
 
 const getCategoryById = (id) => {
-  return axios.get(`${API_URL}/${id}`);
+  return api.get(`/categories/${id}`);
 };
 
 export default {

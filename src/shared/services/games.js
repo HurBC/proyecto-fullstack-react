@@ -1,13 +1,11 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8080/api/v1/games";
+import api from "./api";
 
 const getAllGames = () => {
-  return axios.get(API_URL);
+  return api.get("/games");
 };
 
 const getGameById = (id) => {
-  return axios.get(`${API_URL}/${id}`);
+  return api.get(`/games/${id}`);
 };
 
 export default {
