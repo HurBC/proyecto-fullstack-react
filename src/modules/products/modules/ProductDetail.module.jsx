@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import { Button } from "../../../shared/components/Button";
@@ -70,12 +70,35 @@ const StyledQtyInput = styled.input`
 
 const ProductDetail = () => {
   const [qty, setQty] = useState(1);
-
-  const { code } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const product = ProductsRepo.getProductById(code);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const productData = await ProductsRepo.getProductById(id);
+        setProduct(productData);
+      } catch (err) {
+        setError("Error fetching product");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>{error}</Text>;
+  }
 
   if (!product) {
     return (
